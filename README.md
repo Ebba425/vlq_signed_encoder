@@ -18,3 +18,10 @@ Source maps encode each segment as a sequence of signed integers packed into a B
 ## The awkward edge
 
 Values are encoded as 32-bit signed integers. The full range is `[-2147483648, 2147483647]` and both endpoints round-trip. Numbers outside the safe integer range are not supported and `encode` will reject non-integers. On decode, a trailing group whose continuation bit promises another group that never arrives is treated as corruption and throws — a partial trailing group is never silently dropped, because in a real source map that indicates a truncated or damaged segment.
+
+## Performance
+
+The window keeps a bounded buffer, so `push` is constant time and memory does not
+grow with the length of the stream. `peak` and `trough` are linear in the window
+size, which is the trade that keeps `push` cheap.
+
